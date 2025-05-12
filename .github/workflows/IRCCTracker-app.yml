@@ -54,11 +54,3 @@ jobs:
         EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         UCI: ${{ secrets.UCI }}
         IRCC_PASSWORD: ${{ secrets.IRCC_PASSWORD }}
-
-    - name: Upload screenshot
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-screenshots
-        path: |
-          screenshot.png
-          error.png  # Add all screenshot files
