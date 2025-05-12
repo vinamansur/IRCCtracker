@@ -58,5 +58,7 @@ jobs:
     - name: Upload screenshot
       uses: actions/upload-artifact@v3
       with:
-        name: debug-screenshot
-        path: screenshot.png
+        name: playwright-screenshots
+        path: |
+          screenshot.png
+          error.png  # Add all screenshot files
