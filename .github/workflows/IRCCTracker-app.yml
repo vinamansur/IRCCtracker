@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest playwright
         playwright install chromium    # browser binary
-        playwright install-deps    # Linux dependencies
+        # playwright install-deps    # Linux dependencies
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         
     - name: Lint with flake8
