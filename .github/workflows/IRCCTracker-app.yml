@@ -1,56 +1,85 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
-name: IRCC Tracker Check
-
-on:
-  schedule:
-    - cron: '0 12 * * *'  # Runs daily at noon (UTC)
-  workflow_dispatch:      # Allow manual triggers
-
-permissions:
-  contents: read
+name: IRCC Tracker Debug
+on: [workflow_dispatch]
 
 jobs:
-  build:
-    runs-on: windows-latest
-
+  debug:
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
-        cache: 'pip'
-
-    - name: Cache Playwright browsers
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.cache/ms-playwright
-          ~/.cache/pip
-        key: ${{ runner.os }}-${{ hashFiles('requirements.txt') }}-playwright
-    
-    - name: Install dependencies
-      shell: bash  # 👈 Force Bash even on Windows
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest playwright
-        playwright install chromium    # browser binary
-        # playwright install-deps    # Linux dependencies
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-        
-    - name: Run main.py (IRCC tracker App)
-      run: python ./main.py
-      env:
-        EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-        UCI: ${{ secrets.UCI }}
-        IRCC_PASSWORD: ${{ secrets.IRCC_PASSWORD }}
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y libgbm-dev wget
+          pip install playwright==1.42.0
+          playwright install --with-deps chromium
+          
+      - name: Run with full debugging
+        run: |
+          python -c "
+          from playwright.sync_api import sync_playwright
+          import base64
+          
+          with sync_playwright() as p:
+              browser = p.chromium.launch(
+                  headless=True,
+                  args=['--no-sandbox', '--disable-dev-shm-usage'],
+                  timeout=120000
+              )
+              context = browser.new_context(
+                  user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                  viewport={'width': 1920, 'height': 1080}
+              )
+              page = context.new_page()
+              
+              try:
+                  # Debug network requests
+                  page.on('request', lambda r: print(f'>> {r.method} {r.url}'))
+                  page.on('response', lambda r: print(f'<< {r.status} {r.url}'))
+                  
+                  print('Navigating to page...')
+                  response = page.goto(
+                      'https://ircc-tracker-suivi.apps.cic.gc.ca/en/login',
+                      wait_until='networkidle',
+                      timeout=120000
+                  )
+                  print(f'Navigation status: {response.status}')
+                  
+                  # Save multiple debug files
+                  page.screenshot(path='debug.png', full_page=True)
+                  with open('page_content.html', 'w') as f:
+                      f.write(page.content())
+                  with open('console_logs.txt', 'w') as f:
+                      f.write('\n'.join([msg.text for msg in page.context.pages[0].console_messages]))
+                  
+                  # Verify elements exist
+                  print('Checking elements...')
+                  uci_exists = page.locator('#uci').count()
+                  print(f'UCI field exists: {bool(uci_exists)}')
+                  
+                  if not uci_exists:
+                      raise Exception('UCI field not found')
+                      
+                  # Your form interaction code here
+                  
+              except Exception as e:
+                  print(f'ERROR: {str(e)}')
+                  page.screenshot(path='error.png')
+                  raise
+              finally:
+                  browser.close()
+          "
+          
+      - name: Upload debug files
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-files
+          path: |
+            debug.png
+            page_content.html
+            console_logs.txt
+            error.png
