@@ -1,34 +1,21 @@
-from flask import Flask
+import os
 from playwright.sync_api import sync_playwright
-from dotenv import load_dotenv
 import smtplib
 from email.mime.text import MIMEText
-import os
-import logging
-
-app = Flask(__name__)
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-load_dotenv()
 
 # Email config
 EMAIL_ADDRESS = "vinamansur2@gmail.com"
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+EMAIL_PASSWORD = os.environ("EMAIL_PASSWORD")
 EMAIL_TO = "vinamansur2@gmail.com"
-UCI = os.getenv("UCI")
-IRCC_PASSWORD = os.getenv("IRCC_PASSWORD")
+UCI = os.environ("UCI")
+IRCC_PASSWORD = os.environ("IRCC_PASSWORD")
 
 
-@app.route('/')
 def home():
     try:
         run()
-        logger.info("IRCC check completed successfully")
         return "IRCC status check completed and email sent!"
     except Exception as e:
-        logger.error(f"Error in IRCC check: {str(e)}", exc_info=True)
         return f"Error occurred: {str(e)}"
 
 
@@ -79,4 +66,4 @@ def run():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    run()
