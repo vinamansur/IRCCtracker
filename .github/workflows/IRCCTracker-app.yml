@@ -13,15 +13,15 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python 3.11
+    - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"
+        python-version: "3.10"
         cache: 'pip'
 
     - name: Cache Playwright browsers
@@ -33,11 +33,12 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('requirements.txt') }}-playwright
     
     - name: Install dependencies
+      shell: bash  # 👈 Force Bash even on Windows
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest playwright
         playwright install chromium    # browser binary
-        playwright install-deps    # Linux dependencies
+        # playwright install-deps    # Linux dependencies
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         
     - name: Lint with flake8
