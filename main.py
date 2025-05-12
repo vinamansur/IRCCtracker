@@ -5,10 +5,10 @@ from email.mime.text import MIMEText
 
 # Email config
 EMAIL_ADDRESS = "vinamansur2@gmail.com"
-EMAIL_PASSWORD = os.environ("EMAIL_PASSWORD")
+EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 EMAIL_TO = "vinamansur2@gmail.com"
-UCI = os.environ("UCI")
-IRCC_PASSWORD = os.environ("IRCC_PASSWORD")
+UCI = os.environ["UCI"]
+IRCC_PASSWORD = os.environ["IRCC_PASSWORD"]
 
 
 def home():
