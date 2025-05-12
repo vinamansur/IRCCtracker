@@ -49,7 +49,7 @@ def run():
             page = browser.new_page()
             page.goto("https://ircc-tracker-suivi.apps.cic.gc.ca/en/login", timeout=30000)
             
-            page.screenshot(path='screenshot.png', full_page=True)
+            page.wait_for_selector("Check the status of your application", timeout=15000)
 
             page.locator("#uci").fill(UCI)
             page.locator("#password").fill(IRCC_PASSWORD)
