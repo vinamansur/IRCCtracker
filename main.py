@@ -1,14 +1,18 @@
+from dotenv import load_dotenv
 import os
 from playwright.sync_api import sync_playwright
 import smtplib
 from email.mime.text import MIMEText
 
+
 # Email config
+load_dotenv()
+
 EMAIL_ADDRESS = "vinamansur2@gmail.com"
-EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 EMAIL_TO = "vinamansur2@gmail.com"
-UCI = os.environ["UCI"]
-IRCC_PASSWORD = os.environ["IRCC_PASSWORD"]
+UCI = os.getenv("UCI")
+IRCC_PASSWORD = os.getenv("IRCC_PASSWORD")
 
 
 def home():
@@ -44,6 +48,8 @@ def run():
             )
             page = browser.new_page()
             page.goto("https://ircc-tracker-suivi.apps.cic.gc.ca/en/login", timeout=30000)
+            
+            page.screenshot(path='screenshot.png', full_page=True)
 
             page.locator("#uci").fill(UCI)
             page.locator("#password").fill(IRCC_PASSWORD)
