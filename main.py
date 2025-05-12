@@ -34,7 +34,14 @@ def run():
     with sync_playwright() as p:
         browser = None
         try:
-            browser = p.chromium.launch(headless=True)
+            browser = p.chromium.launch(
+                headless=True,
+                args=[
+                    '--disable-blink-features=AutomationControlled',
+                    '--no-sandbox',
+                    '--disable-dev-shm-usage'  # Critical for GitHub Actions
+                ]    
+            )
             page = browser.new_page()
             page.goto("https://ircc-tracker-suivi.apps.cic.gc.ca/en/login", timeout=30000)
 
