@@ -28,3 +28,11 @@ jobs:
           UCI: ${{ secrets.UCI }}
           IRCC_PASSWORD: ${{ secrets.IRCC_PASSWORD }}
         run: python ./main.py  # Replace with your script name
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: ircc-screenshots
+          path: |
+            *.png
+            !node_modules/
