@@ -39,7 +39,7 @@ def run():
         browser = None
         try:
             browser = p.chromium.launch(
-                headless=True,
+                headless=False,
                 args=[
                     '--disable-blink-features=AutomationControlled',
                     '--no-sandbox',
@@ -49,7 +49,7 @@ def run():
             page = browser.new_page()
             page.goto("https://ircc-tracker-suivi.apps.cic.gc.ca/en/login", timeout=30000)
             
-            page.wait_for_selector("Check the status of your application", timeout=15000)
+            page.wait_for_selector("text=Check the status of your application", timeout=15000)
 
             page.locator("#uci").fill(UCI)
             page.locator("#password").fill(IRCC_PASSWORD)
