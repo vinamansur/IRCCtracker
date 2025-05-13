@@ -39,7 +39,7 @@ def run():
         browser = None
         try:
             browser = p.chromium.launch(
-                headless=False,
+                headless=True,
                 args=[
                     '--disable-blink-features=AutomationControlled',
                     '--no-sandbox',
