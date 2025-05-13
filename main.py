@@ -48,6 +48,8 @@ def run():
             )
             page = browser.new_page()
             page.goto("https://ircc-tracker-suivi.apps.cic.gc.ca/en/login", timeout=30000)
+
+            page.screenshot(path="pageload.png")
             
             page.wait_for_selector("text=Check the status of your application", timeout=15000)
 
